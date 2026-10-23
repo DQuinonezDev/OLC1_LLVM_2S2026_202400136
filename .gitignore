@@ -1,0 +1,15 @@
+# Archivos generados por Flex y Bison
+lex.yy.c
+parser.tab.c
+parser.tab.h
+parser.output
+
+# Binarios
+compilador
+compilador.exe
+*.o
+*.obj
+*.elf
+*.hex
+prueba
+prueba.exe
