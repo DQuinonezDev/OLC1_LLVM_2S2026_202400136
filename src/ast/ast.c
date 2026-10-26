@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static ASTNode *ast_new(NodeType type, int line, int col)
+static ASTNode *ast_new(NodeType type, Ubicacion loc)
 {
     ASTNode *node = calloc(1, sizeof *node);
     if (!node) {
@@ -10,53 +10,61 @@ static ASTNode *ast_new(NodeType type, int line, int col)
         exit(EXIT_FAILURE);
     }
     node->type = type;
-    node->line = line;
-    node->col = col;
+    node->loc = loc;
     node->tipo = T_DESCONOCIDO;
     return node;
 }
 
-ASTNode *ast_let(char *name, ASTNode *expr, int line, int col)
+ASTNode *ast_let(char *name, ASTNode *expr, Ubicacion loc)
 {
-    ASTNode *node = ast_new(NODE_LET, line, col);
+    ASTNode *node = ast_new(NODE_LET, loc);
     node->name = name;
     node->left = expr;
     return node;
 }
 
-ASTNode *ast_print_stmt(ASTNode *expr, int line, int col)
+ASTNode *ast_print_stmt(ASTNode *expr, Ubicacion loc)
 {
-    ASTNode *node = ast_new(NODE_PRINT, line, col);
+    ASTNode *node = ast_new(NODE_PRINT, loc);
     node->left = expr;
     return node;
 }
 
-ASTNode *ast_binop(char op, ASTNode *left, ASTNode *right, int line, int col)
+ASTNode *ast_led(ASTNode *pin, int encendido, Ubicacion loc)
 {
-    ASTNode *node = ast_new(NODE_BINOP, line, col);
+    ASTNode *node = ast_new(NODE_LED, loc);
+    node->left = pin;
+    node->ival = encendido;
+    return node;
+}
+
+ASTNode *ast_binop(char op, ASTNode *left, ASTNode *right, Ubicacion loc, Ubicacion op_loc)
+{
+    ASTNode *node = ast_new(NODE_BINOP, loc);
     node->op = op;
+    node->op_loc = op_loc;
     node->left = left;
     node->right = right;
     return node;
 }
 
-ASTNode *ast_entero(int value, int line, int col)
+ASTNode *ast_entero(int value, Ubicacion loc)
 {
-    ASTNode *node = ast_new(NODE_ENTERO, line, col);
+    ASTNode *node = ast_new(NODE_ENTERO, loc);
     node->ival = value;
     return node;
 }
 
-ASTNode *ast_decimal(double value, int line, int col)
+ASTNode *ast_decimal(double value, Ubicacion loc)
 {
-    ASTNode *node = ast_new(NODE_DECIMAL, line, col);
+    ASTNode *node = ast_new(NODE_DECIMAL, loc);
     node->dval = value;
     return node;
 }
 
-ASTNode *ast_id(char *name, int line, int col)
+ASTNode *ast_id(char *name, Ubicacion loc)
 {
-    ASTNode *node = ast_new(NODE_ID, line, col);
+    ASTNode *node = ast_new(NODE_ID, loc);
     node->name = name;
     return node;
 }
@@ -83,10 +91,14 @@ const char *tipo_nombre(Tipo tipo)
     }
 }
 
-static void print_expr(const ASTNode *node, int depth)
+/* Dibuja el arbol con ramas al estilo "tree":
+       BINOP(+) : i32
+       |-- ENTERO(10) : i32
+       `-- BINOP(*) : i32                                       */
+static void print_expr(const ASTNode *node, const char *prefix, int last)
 {
     if (!node) return;
-    printf("%*s", depth * 2, "");
+    printf("%s%s", prefix, last ? "`-- " : "|-- ");
     switch (node->type) {
         case NODE_ENTERO:  printf("ENTERO(%d)", node->ival); break;
         case NODE_DECIMAL: printf("DECIMAL(%g)", node->dval); break;
@@ -97,22 +109,29 @@ static void print_expr(const ASTNode *node, int depth)
     if (node->tipo != T_DESCONOCIDO)
         printf(" : %s", tipo_nombre(node->tipo));
     putchar('\n');
+
     if (node->type == NODE_BINOP) {
-        print_expr(node->left, depth + 1);
-        print_expr(node->right, depth + 1);
+        char child_prefix[256];
+        snprintf(child_prefix, sizeof child_prefix, "%s%s", prefix, last ? "    " : "|   ");
+        print_expr(node->left, child_prefix, 0);
+        print_expr(node->right, child_prefix, 1);
     }
 }
 
-void ast_print(const ASTNode *node, int depth)
+void ast_print(const ASTNode *node)
 {
-    printf("%*sPROGRAMA\n", depth * 2, "");
+    puts("PROGRAMA");
     for (; node; node = node->next) {
-        printf("%*s", (depth + 1) * 2, "");
-        if (node->type == NODE_LET)
-            printf("LET %s  (linea %d)\n", node->name, node->line);
-        else
-            printf("PRINT  (linea %d)\n", node->line);
-        print_expr(node->left, depth + 2);
+        int last = node->next == NULL;
+        printf("%s", last ? "`-- " : "|-- ");
+        switch (node->type) {
+            case NODE_LET:   printf("LET %s", node->name); break;
+            case NODE_PRINT: printf("PRINT"); break;
+            case NODE_LED:   printf("LED %s", node->ival ? "on" : "off"); break;
+            default: break;
+        }
+        printf("  (linea %d)\n", node->loc.line);
+        print_expr(node->left, last ? "    " : "|   ", 1);
     }
 }
 

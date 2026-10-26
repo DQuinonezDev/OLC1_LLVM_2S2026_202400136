@@ -13,3 +13,9 @@ compilador.exe
 *.hex
 prueba
 prueba.exe
+/.tools/
+/build/
+/bin/
+/enunciado.txt
+__pycache__/
+*.zip

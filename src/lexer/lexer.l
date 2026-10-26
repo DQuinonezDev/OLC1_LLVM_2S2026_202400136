@@ -2,6 +2,7 @@
 
 %{
 #include "parser.tab.h"
+#include "fuente.h"
 #include <errno.h>
 #include <limits.h>
 #include <stdio.h>
@@ -22,8 +23,11 @@ static int yycolumn = 1;
 
 static void lex_error(const char *reason)
 {
+    Ubicacion loc = { yylloc.first_line, yylloc.first_column,
+                      yylloc.last_line, yylloc.last_column };
     fprintf(stderr, "Error lexico en linea %d, columna %d: %s [%s]\n",
-            yylloc.first_line, yylloc.first_column, reason, yytext);
+            loc.line, loc.col, reason, yytext);
+    fuente_subrayar(loc);
     lexical_error = 1;
 }
 
@@ -47,6 +51,9 @@ LETRA       [a-zA-Z_]
 
 "let"       { return LET; }
 "print"     { return PRINT; }
+"led"       { return LED; }
+"on"        { return ON; }
+"off"       { return OFF; }
 
 {DIGITO}+"."{DIGITO}+ {
     errno = 0;
@@ -59,9 +66,9 @@ LETRA       [a-zA-Z_]
 
 {DIGITO}+ {
     errno = 0;
-    long value = strtol(yytext, NULL, 10);
+    long long value = strtoll(yytext, NULL, 10);
     if (errno == ERANGE || value > INT_MAX) {
-        lex_error("Entero fuera del rango de i32");
+        lex_error("Entero fuera del rango de i32 (maximo 2147483647)");
         value = 0;
     }
     yylval.ival = (int)value;
