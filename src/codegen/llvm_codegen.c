@@ -1,4 +1,5 @@
 #include "llvm_codegen.h"
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -13,26 +14,18 @@ static unsigned next_temp;      /* %t1, %t2, ... nunca se reutilizan */
 static TablaSimbolos *tabla;
 
 /* LLVM exige que una constante double tenga punto decimal ("20.0", no
-   "20") y la acepta en notacion cientifica solo como "1.5e+20". Se busca
-   la representacion mas corta que, al leerse de nuevo, da el mismo valor
-   exacto, para que el .ll sea legible (0.1 y no 0.10000000000000001). */
+   "20"). Se busca la representacion mas corta que, al leerse de nuevo, da
+   exactamente el mismo valor, para que el .ll sea legible (0.1 y no
+   0.10000000000000001). Valores enormes o diminutos van en notacion
+   cientifica con punto: 1.5e+20. */
 static void format_double(char *buffer, size_t size, double value)
 {
+    int use_fixed = value == 0.0 || (fabs(value) >= 1e-4 && fabs(value) < 1e15);
+
     for (int precision = 1; precision <= 17; precision++) {
-        snprintf(buffer, size, "%.*g", precision, value);
+        snprintf(buffer, size, use_fixed ? "%.*f" : "%.*e", precision, value);
         if (strtod(buffer, NULL) == value)
             break;
-    }
-
-    char *exponent = strchr(buffer, 'e');
-    if (!strchr(buffer, '.')) {
-        char tail[32] = "";
-        if (exponent) {
-            strncpy(tail, exponent, sizeof tail - 1);
-            *exponent = '\0';
-        }
-        strncat(buffer, ".0", size - strlen(buffer) - 1);
-        strncat(buffer, tail, size - strlen(buffer) - 1);
     }
 }
 

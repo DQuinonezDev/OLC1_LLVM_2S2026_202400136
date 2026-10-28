@@ -101,7 +101,10 @@ static void print_expr(const ASTNode *node, const char *prefix, int last)
     printf("%s%s", prefix, last ? "`-- " : "|-- ");
     switch (node->type) {
         case NODE_ENTERO:  printf("ENTERO(%d)", node->ival); break;
-        case NODE_DECIMAL: printf("DECIMAL(%g)", node->dval); break;
+        case NODE_DECIMAL:
+            printf(node->dval < 1e15 && node->dval == (long long)node->dval
+                       ? "DECIMAL(%.1f)" : "DECIMAL(%g)", node->dval);
+            break;
         case NODE_ID:      printf("ID(%s)", node->name); break;
         case NODE_BINOP:   printf("BINOP(%c)", node->op); break;
         default: break;

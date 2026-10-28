@@ -125,7 +125,7 @@ build/mega_main.o: runtime/mega2560/main_mega.c runtime/runtime.h | build
 
 # 4. enlazar programa + runtime -> firmware ELF
 build/$(NAME).elf: build/$(NAME).o build/mega_runtime.o build/mega_formato.o build/mega_main.o
-	$(AVR_GCC) -mmcu=$(MCU) -mdouble=64 $^ -o $@
+	$(AVR_GCC) -mmcu=$(MCU) -mdouble=64 -Wl,--no-warn-execstack $^ -o $@
 
 # 5. ELF -> Intel HEX (el formato que entiende el bootloader de la Mega)
 build/$(NAME).hex: build/$(NAME).elf
