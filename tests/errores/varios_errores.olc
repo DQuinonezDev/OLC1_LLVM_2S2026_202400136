@@ -1,0 +1,6 @@
+let a = 1;
+let b = 2.0;
+print a * b;
+print c;
+let a = 3;
+let x = x + 1;

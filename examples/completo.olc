@@ -1,0 +1,18 @@
+// Programa que ejercita todo el lenguaje
+let a = 10;
+let b = 20;
+let resultado = a + b * 2;      // precedencia: 10 + (20 * 2) = 50
+print resultado;
+
+let ancho = 10.5;
+let alto = 20.0;
+let area = ancho * alto;        // 210.0
+print area;
+
+print (a + b) * 2;              // parentesis: 60
+print 9 - 3 - 1;                // asociatividad izquierda: (9 - 3) - 1 = 5
+print 20 / 2 / 2;               // (20 / 2) / 2 = 5
+print 7 / 2;                    // division entera (sdiv): 3
+print 7.0 / 2.0;                // division decimal (fdiv): 3.5
+print (ancho + alto) / 2.0;     // 15.25
+print 1.0 / 3.0;                // 0.333333

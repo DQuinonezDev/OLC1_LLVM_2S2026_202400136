@@ -1,0 +1,5 @@
+// Ejemplo 2 del enunciado (decimales)
+let precio = 25.5;
+let cantidad = 4.0;
+let total = precio * cantidad;
+print total;
