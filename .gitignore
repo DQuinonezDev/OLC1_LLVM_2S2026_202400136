@@ -1,21 +1,8 @@
-# Archivos generados por Flex y Bison
-lex.yy.c
-parser.tab.c
-parser.tab.h
-parser.output
-
-# Binarios
-compilador
-compilador.exe
+# Archivos generados (se recrean con make)
+/build/
+/bin/
 *.o
 *.obj
 *.elf
 *.hex
-prueba
-prueba.exe
-/.tools/
-/build/
-/bin/
-/enunciado.txt
-__pycache__/
-*.zip
+*.exe

@@ -59,8 +59,8 @@ instrucciones
 instruccion
     : LET ID '=' expresion ';'          { $$ = ast_let($2, $4, U(@2)); }
     | PRINT expresion ';'               { $$ = ast_print_stmt($2, U(@1)); }
-    | LED expresion ON ';'              { $$ = ast_led($2, 1, U(@1)); }
-    | LED expresion OFF ';'             { $$ = ast_led($2, 0, U(@1)); }
+    | LED ENTERO ON ';'                 { $$ = ast_led(ast_entero($2, U(@2)), 1, U(@1)); }
+    | LED ENTERO OFF ';'                { $$ = ast_led(ast_entero($2, U(@2)), 0, U(@1)); }
     | error ';'                         { $$ = NULL; yyerrok; }
     ;
 
