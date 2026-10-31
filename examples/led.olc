@@ -1,6 +1,5 @@
 // Punto extra: encender el LED integrado de la Arduino Mega (pin 13)
-let pin = 13;
 let x = 6;
 let y = 7;
-print x * y;        // 42 en el monitor serial
-led pin on;         // el LED "L" de la placa queda encendido
+print x * y;        
+led 13 on;          

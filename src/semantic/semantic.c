@@ -112,18 +112,10 @@ int semantic_analyze(ASTNode *root, TablaSimbolos *tabla)
                 stmt->tipo = check_expr(stmt->left, tabla);
                 break;
 
-            case NODE_LED: {
-                Tipo t = check_expr(stmt->left, tabla);
-                if (t == T_DOUBLE) {
-                    semantic_error(stmt->left->loc, stmt->left->loc,
-                                   "el numero de pin debe ser entero",
-                                   "Tipos", "led double",
-                                   "los pines digitales se identifican con un i32");
-                    t = T_ERROR;
-                }
-                stmt->tipo = t;
+            case NODE_LED:
+                /* La gramatica solo permite un literal entero como pin. */
+                stmt->tipo = check_expr(stmt->left, tabla);
                 break;
-            }
 
             default:
                 break;
